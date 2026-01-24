@@ -1,18 +1,9 @@
 ## Planned MVP
-<ul>
-  <li>
-    user auth
-  </li>
-  <li>
-    video upoad
-  </li>
-  <li>
-    stream on demand
-  </li>
-  <li>
-    live stream
-  </li>
-</ul>
+
+   - [X] user auth
+   - video upoad
+   - stream on demand
+   - live stream
 <hr>
 
 ## High-Level Design
