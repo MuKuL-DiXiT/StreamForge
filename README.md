@@ -16,6 +16,13 @@
 
 ## ORM
       Spring Data JPA
+## Video String
+   <ul>
+         <li>FFmpeg is used for video transcoding and to generate multiple bitrate and
+      resolution variants required for adaptive bitrate (HLS) streaming. </li>
+      <li> The FFmpeg process is executed using Java’s ProcessBuilder, which runs FFmpeg
+      as an external OS-level process, since FFmpeg itself is implemented in C/C++. </li>
+      </ul>
 
 # Controllers
 
