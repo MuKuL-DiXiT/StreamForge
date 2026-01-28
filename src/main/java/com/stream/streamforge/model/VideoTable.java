@@ -23,7 +23,7 @@ public class VideoTable {
   private String videoUrl;
 
   @Enumerated(EnumType.STRING)
-  private Status status;
+  private VideoStatus status;
 
   private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -46,8 +46,8 @@ public class VideoTable {
   public String getVideoUrl() { return videoUrl; }
   public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
 
-  public Status getStatus() { return status; }
-  public void setStatus(Status status) { this.status = status; }
+  public VideoStatus getStatus() { return status; }
+  public void setStatus(VideoStatus status) { this.status = status; }
 
   public LocalDateTime getCreatedAt() { return createdAt; }
   public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

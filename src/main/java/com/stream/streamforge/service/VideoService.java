@@ -1,8 +1,16 @@
 package com.stream.streamforge.service;
 
+import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.*;
+import java.util.List;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.stream.streamforge.dto.VideoResponse;
+import com.stream.streamforge.model.VideoStatus;
 import com.stream.streamforge.model.VideoTable;
 import com.stream.streamforge.repository.VideoRepository;
 
@@ -26,4 +34,74 @@ public class VideoService {
 		return videoResponse;
 		
 	}
+	public Path downloadVideo(Long videoId, String videoUrl) throws IOException {
+		Path output = Paths.get("/video/tmp/videos", videoId+".mp4");
+		try (InputStream in = new URL(videoUrl).openStream()){
+			Files.copy(in, output, StandardCopyOption.REPLACE_EXISTING);
+		}
+		return output;
+	}
+	public Path createHlsDir(Long videoId) throws IOException {
+	    Path hlsDir = Paths.get("/storage/hls", videoId.toString());
+	    Files.createDirectories(hlsDir);
+	    return hlsDir;
+	}
+	private void runFfmpeg(Path input, Path outputDir) throws IOException, InterruptedException {
+
+	    List<String> command = List.of(
+	        "ffmpeg",
+	        "-i", input.toString(),
+	        "-map", "0:v",
+	        "-map", "0:a",
+	        "-s:v:0", "640x360",
+	        "-b:v:0", "800k",
+	        "-s:v:1", "1280x720",
+	        "-b:v:1", "2500k",
+	        "-var_stream_map", "v:0,a:0 v:1,a:0",
+	        "-hls_time", "4",
+	        "-hls_playlist_type", "vod",
+	        "-hls_segment_filename", outputDir + "/output_%v_%03d.ts",
+	        "-master_pl_name", "master.m3u8",
+	        outputDir + "/output_%v.m3u8"
+	    );
+
+	    Process process = new ProcessBuilder(command)
+	            .redirectErrorStream(true)
+	            .start();
+	    try (BufferedReader reader =
+	            new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+	       while (reader.readLine() != null) {
+	           // discard or log
+	       }
+	   }
+
+	    int exitCode = process.waitFor();
+
+	    if (exitCode != 0) {
+	        throw new RuntimeException("FFmpeg failed");
+	    }
+	}
+	@Async
+	public void processVideo(Long videoId) {
+		VideoTable video = videoRepo.findById(videoId)
+		        .orElseThrow(() -> new RuntimeException("Video not found"));
+	    try {
+	        video.setStatus(VideoStatus.PROCESSING);
+	        videoRepo.save(video);
+
+	        Path input = downloadVideo(video.getId(), video.getVideoUrl());
+	        Path hlsDir = createHlsDir(video.getId());
+
+	        runFfmpeg(input, hlsDir);
+
+	        video.setStatus(VideoStatus.READY);
+	        videoRepo.save(video);
+
+	    } catch (Exception e) {
+	        video.setStatus(VideoStatus.FAILED);
+	        videoRepo.save(video);
+	    }
+	}
+
 }
+
