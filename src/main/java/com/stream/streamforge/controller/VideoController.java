@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.stream.streamforge.dto.PlayResponse;
 import com.stream.streamforge.dto.VideoResponse;
 import com.stream.streamforge.service.CloudinaryService;
 import com.stream.streamforge.service.VideoService;
@@ -25,4 +26,9 @@ public class VideoController {
 		String videoUrl = cloudinaryService.upload(video);
 		return videoService.savetoDB(videoUrl, title, description);
 	}
+	@GetMapping("/play")
+	public PlayResponse playVideo(@RequestParam("videoId") Long videoId) throws RuntimeException, IOException, InterruptedException {
+		return videoService.processVideo(videoId);
+	}
+	
 }
