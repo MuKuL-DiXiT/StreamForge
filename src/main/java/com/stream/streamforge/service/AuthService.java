@@ -1,15 +1,16 @@
 package com.stream.streamforge.service;
 
-
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.stream.streamforge.dto.LoginRequest;
 import com.stream.streamforge.dto.LoginResponse;
 import com.stream.streamforge.dto.SignupRequest;
 import com.stream.streamforge.dto.SignupResponse;
 import com.stream.streamforge.model.UserTable;
 import com.stream.streamforge.repository.UserRepository;
+
 @Service
 public class AuthService {
 
@@ -43,8 +44,10 @@ public class AuthService {
         user.setName(req.getName());
         user.setRole(role);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
+        SecureRandom random = new SecureRandom();
+        String streamKey = new BigInteger(130, random).toString(32);
+        user.setStreamKey(streamKey);
         userRepo.save(user);
-
         return new SignupResponse(user.getId(), user.getEmail(), user.getRole());
     }
 

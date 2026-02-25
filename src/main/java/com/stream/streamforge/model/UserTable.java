@@ -24,6 +24,10 @@ public class UserTable {
   @NotBlank
   private String role;
   
+  @Column(unique = true)
+  @NotBlank
+  private String streamKey;
+  
   
   public Long getId() {
     return id;
@@ -63,5 +67,13 @@ public class UserTable {
 
   public void setRole(String role) {
 	this.role = role;
+  }
+
+  public String getStreamKey() {
+	  return streamKey;
+  }
+
+  public void setStreamKey(String streamKey) {
+	  this.streamKey = streamKey;
   }
 }
